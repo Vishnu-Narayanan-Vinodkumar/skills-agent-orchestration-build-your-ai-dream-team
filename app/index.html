@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Project Pulse</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <h1>Project Pulse</h1>
+      <p>Track project health, priorities, ownership, and momentum at a glance.</p>
+    </header>
+
+    <main class="dashboard" aria-label="Project dashboard"></main>
+
+    <script>
+      const FALLBACK_PROJECTS = [
+        {
+          id: "apollo-redesign",
+          name: "Apollo Portal Redesign",
+          owner: "Mona Kane",
+          status: "on-track",
+          priority: "high",
+          progress: 68,
+          dueDate: "2026-10-15",
+          recentActivity: "Completed usability review with customer success.",
+          summary: "Refresh the customer portal navigation and dashboard experience."
+        },
+        {
+          id: "atlas-data-sync",
+          name: "Atlas Data Sync",
+          owner: "Diego Park",
+          status: "at-risk",
+          priority: "medium",
+          progress: 42,
+          dueDate: "2026-10-29",
+          recentActivity: "Identified retry delays in the partner API integration.",
+          summary: "Automate nightly account data synchronization across regions."
+        },
+        {
+          id: "mercury-mobile-beta",
+          name: "Mercury Mobile Beta",
+          owner: "Aisha Patel",
+          status: "blocked",
+          priority: "high",
+          progress: 31,
+          dueDate: "2026-11-12",
+          recentActivity: "Waiting on app store provisioning approval.",
+          summary: "Prepare the mobile app beta for field operations teams."
+        },
+        {
+          id: "northstar-onboarding",
+          name: "Northstar Onboarding",
+          owner: "Liam Chen",
+          status: "done",
+          priority: "low",
+          progress: 100,
+          dueDate: "2026-09-30",
+          recentActivity: "Published final playbook and training recordings.",
+          summary: "Deliver a guided onboarding journey for new enterprise admins."
+        },
+        {
+          id: "harbor-security-review",
+          name: "Harbor Security Review",
+          owner: "Priya Shah",
+          status: "on-track",
+          priority: "medium",
+          progress: 76,
+          dueDate: "2026-10-08",
+          recentActivity: "Closed three findings from the threat model workshop.",
+          summary: "Complete the quarterly security review for payments workflows."
+        }
+      ];
+
+      const KNOWN_STATUSES = new Set(["on-track", "at-risk", "blocked", "done"]);
+      const KNOWN_PRIORITIES = new Set(["high", "medium", "low"]);
+
+      function getText(value, fallback = "—") {
+        if (value === null || value === undefined || value === "") {
+          return fallback;
+        }
+
+        return String(value);
+      }
+
+      function clampProgress(value) {
+        const parsed = Number(value);
+
+        if (!Number.isFinite(parsed)) {
+          return 0;
+        }
+
+        return Math.min(100, Math.max(0, Math.round(parsed)));
+      }
+
+      function formatLabel(value) {
+        return getText(value)
+          .split("-")
+          .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+          .join(" ");
+      }
+
+      function appendLabeledText(parent, label, value, className) {
+        const paragraph = document.createElement("p");
+
+        if (className) {
+          paragraph.className = className;
+        }
+
+        const strong = document.createElement("strong");
+        strong.textContent = `${label}: `;
+        paragraph.append(strong, document.createTextNode(getText(value)));
+        parent.appendChild(paragraph);
+      }
+
+      function createProjectCard(project) {
+        const card = document.createElement("article");
+        card.className = "project-card";
+
+        const title = document.createElement("h2");
+        title.textContent = getText(project.name, "Untitled project");
+        card.appendChild(title);
+
+        appendLabeledText(card, "Owner", project.owner, "owner");
+
+        const meta = document.createElement("div");
+        meta.className = "project-card__meta";
+
+        const status = document.createElement("span");
+        status.className = "status-badge";
+        if (KNOWN_STATUSES.has(project.status)) {
+          status.classList.add(`status-badge--${project.status}`);
+        }
+        status.textContent = `Status: ${formatLabel(project.status)}`;
+        meta.appendChild(status);
+
+        const priority = document.createElement("span");
+        priority.className = "priority";
+        if (KNOWN_PRIORITIES.has(project.priority)) {
+          priority.classList.add(`priority--${project.priority}`);
+        }
+        priority.textContent = `Priority: ${formatLabel(project.priority)}`;
+        meta.appendChild(priority);
+
+        card.appendChild(meta);
+
+        const progressValue = clampProgress(project.progress);
+        const progress = document.createElement("div");
+        progress.className = "progress";
+        progress.setAttribute("role", "progressbar");
+        progress.setAttribute("aria-label", `${getText(project.name, "Project")} progress`);
+        progress.setAttribute("aria-valuemin", "0");
+        progress.setAttribute("aria-valuemax", "100");
+        progress.setAttribute("aria-valuenow", String(progressValue));
+
+        const progressLabel = document.createElement("span");
+        progressLabel.className = "progress__label";
+        progressLabel.textContent = `Progress: ${progressValue}%`;
+        progress.appendChild(progressLabel);
+
+        const progressTrack = document.createElement("span");
+        progressTrack.className = "progress__track";
+        progressTrack.setAttribute("aria-hidden", "true");
+
+        const progressFill = document.createElement("span");
+        progressFill.className = "progress__fill";
+        progressFill.style.width = `${progressValue}%`;
+        progressTrack.appendChild(progressFill);
+        progress.appendChild(progressTrack);
+        card.appendChild(progress);
+
+        const dueDateWrapper = document.createElement("p");
+        const dueDateLabel = document.createElement("strong");
+        dueDateLabel.textContent = "Due: ";
+        const dueDate = document.createElement("time");
+        dueDate.dateTime = getText(project.dueDate, "");
+        dueDate.textContent = getText(project.dueDate);
+        dueDateWrapper.append(dueDateLabel, dueDate);
+        card.appendChild(dueDateWrapper);
+
+        appendLabeledText(card, "Recent activity", project.recentActivity, "recent-activity");
+
+        const summary = document.createElement("p");
+        summary.textContent = getText(project.summary);
+        card.appendChild(summary);
+
+        return card;
+      }
+
+      function renderProjects(projects) {
+        const dashboard = document.querySelector(".dashboard");
+        dashboard.replaceChildren();
+
+        if (!Array.isArray(projects) || projects.length === 0) {
+          const emptyState = document.createElement("div");
+          emptyState.className = "empty-state";
+          emptyState.textContent = "No projects yet";
+          dashboard.appendChild(emptyState);
+          return;
+        }
+
+        const fragment = document.createDocumentFragment();
+        projects.forEach((project) => {
+          fragment.appendChild(createProjectCard(project));
+        });
+        dashboard.appendChild(fragment);
+      }
+
+      async function loadProjects() {
+        try {
+          const response = await fetch("./project-data.json");
+          if (!response.ok) {
+            throw new Error(`Project data request failed with status ${response.status}`);
+          }
+
+          const data = await response.json();
+          if (!Array.isArray(data.projects)) {
+            throw new Error("Project data must include a projects array");
+          }
+
+          return data.projects;
+        } catch (error) {
+          console.warn("Using embedded Project Pulse data because project-data.json could not be loaded.", error);
+          return FALLBACK_PROJECTS;
+        }
+      }
+
+      loadProjects().then(renderProjects);
+    </script>
+  </body>
+</html>

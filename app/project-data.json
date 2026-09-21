@@ -1,0 +1,59 @@
+{
+  "projects": [
+    {
+      "id": "apollo-redesign",
+      "name": "Apollo Portal Redesign",
+      "owner": "Mona Kane",
+      "status": "on-track",
+      "priority": "high",
+      "progress": 68,
+      "dueDate": "2026-10-15",
+      "recentActivity": "Completed usability review with customer success.",
+      "summary": "Refresh the customer portal navigation and dashboard experience."
+    },
+    {
+      "id": "atlas-data-sync",
+      "name": "Atlas Data Sync",
+      "owner": "Diego Park",
+      "status": "at-risk",
+      "priority": "medium",
+      "progress": 42,
+      "dueDate": "2026-10-29",
+      "recentActivity": "Identified retry delays in the partner API integration.",
+      "summary": "Automate nightly account data synchronization across regions."
+    },
+    {
+      "id": "mercury-mobile-beta",
+      "name": "Mercury Mobile Beta",
+      "owner": "Aisha Patel",
+      "status": "blocked",
+      "priority": "high",
+      "progress": 31,
+      "dueDate": "2026-11-12",
+      "recentActivity": "Waiting on app store provisioning approval.",
+      "summary": "Prepare the mobile app beta for field operations teams."
+    },
+    {
+      "id": "northstar-onboarding",
+      "name": "Northstar Onboarding",
+      "owner": "Liam Chen",
+      "status": "done",
+      "priority": "low",
+      "progress": 100,
+      "dueDate": "2026-09-30",
+      "recentActivity": "Published final playbook and training recordings.",
+      "summary": "Deliver a guided onboarding journey for new enterprise admins."
+    },
+    {
+      "id": "harbor-security-review",
+      "name": "Harbor Security Review",
+      "owner": "Priya Shah",
+      "status": "on-track",
+      "priority": "medium",
+      "progress": 76,
+      "dueDate": "2026-10-08",
+      "recentActivity": "Closed three findings from the threat model workshop.",
+      "summary": "Complete the quarterly security review for payments workflows."
+    }
+  ]
+}
